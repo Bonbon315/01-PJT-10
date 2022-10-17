@@ -8,7 +8,7 @@
   <p>영화 제목:{{ review.movie_name }}</p>
   <p>평점:{{ review.grade }}</p>
   {% if review.image %}
-  <img src="{{ review.image.url }}" alt="{{review.image}}" width="400">
+  <img src="{{ review.image.url }}" width="400">
   {% endif %}
   <div class="d-grid gap-2 d-flex justify-content-end">
     <a href="{% url 'reviews:update' review.pk %}" class="btn btn-primary">수정</a>
