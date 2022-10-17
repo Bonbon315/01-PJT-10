@@ -4,7 +4,7 @@
 
   {% bootstrap_javascript %}
 
-  <form action="" method="POST">
+  <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {% bootstrap_form review_form %}
     {% bootstrap_button button_type="submit" content="글 수정"%}
