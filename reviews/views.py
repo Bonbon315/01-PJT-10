@@ -1,8 +1,7 @@
-from multiprocessing import context
 from django import views
 from django.shortcuts import render, redirect
-from .forms import ReviewForm
-from .models import Review
+from .forms import ReviewForm, CommentForm
+from .models import Review, Comment
 from django.contrib.auth.decorators import login_required
 
 
@@ -14,7 +13,13 @@ def index(request):
 
 def detail(request, pk):
     review = Review.objects.get(pk=pk)
-    context = {"review": review}
+    comment_form = CommentForm()
+
+    context = {
+        "review": review,
+        "comments": review.comment_set.all(),
+        "comment_form": comment_form,
+    }
     return render(request, "reviews/detail.html", context)
 
 
@@ -52,3 +57,13 @@ def delete(request, pk):
         review.delete()
         return redirect("reviews:index")
     return render(request, "reviews/detail.html")
+
+
+def comment_create(request, pk):
+    review = Review.objects.get(pk=pk)
+    comment_form = CommentForm(request.POST)
+    if comment_form.is_valid():
+        comment = comment_form.save(commit=False)
+        comment.review = review
+        comment.save()
+    return redirect("reviews:detail", review.pk)
