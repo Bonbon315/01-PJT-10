@@ -18,7 +18,7 @@
   </form>
 </div>
 <!--댓글-->
-<h3 class="my-3">댓글</h3>
+<h3 class="my-3">댓글 ({{ comments.count }})</h3>
 {% for comment in comments %}
   <div class="d-flex flex-row justify-content-between">
     <p>{{ comment.content }}</p>
