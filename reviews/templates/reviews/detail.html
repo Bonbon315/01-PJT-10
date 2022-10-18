@@ -20,10 +20,16 @@
 <!--댓글-->
 <h3 class="my-3">댓글</h3>
 {% for comment in comments %}
+  <div class="d-flex flex-row justify-content-between">
     <p>{{ comment.content }}</p>
-    <hr>    
+    <form action="{% url 'reviews:comment_delete' review.pk comment.pk%}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="삭제" class="btn btn-outline-danger">
+    </form>
+  </div>
+  <hr>    
 {% empty %}
-    <p>댓글이 없어요 ㅠ_ㅠ</p>
+  <p>댓글이 없어요 ㅠ_ㅠ</p>
 {% endfor %}
 <form action="{% url 'reviews:comment_create' review.id %}" method="POST">
   {% csrf_token %}
