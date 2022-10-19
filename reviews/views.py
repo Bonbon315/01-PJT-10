@@ -1,7 +1,8 @@
 from django import views
 from django.shortcuts import render, redirect
 from .forms import ReviewForm, CommentForm
-from .models import Review, Comment
+from .models import Review
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
@@ -28,7 +29,10 @@ def create(request):
     if request.method == "POST":
         review_form = ReviewForm(request.POST, request.FILES)
         if review_form.is_valid():
-            review_form.save()
+            review = review_form.save(commit=False)
+            review.user = request.user
+            review.save()
+            messages.success(request, "글 작성이 완료되었습니다.")
             return redirect("reviews:index")
     else:
         review_form = ReviewForm()
@@ -39,23 +43,31 @@ def create(request):
 @login_required
 def update(request, pk):
     review = Review.objects.get(pk=pk)
-    if request.method == "POST":
-        review_form = ReviewForm(request.POST, request.FILES, instance=review)
-        if review_form.is_valid():
-            review_form.save()
-            return redirect("reviews:detail", review.pk)
+    if request.user == review.user:
+        if request.method == "POST":
+            review_form = ReviewForm(request.POST, request.FILES, instance=review)
+            if review_form.is_valid():
+                review_form.save()
+                return redirect("reviews:detail", review.pk)
+        else:
+            review_form = ReviewForm(instance=review)
+        context = {"review_form": review_form}
+        return render(request, "reviews/update.html", context)
     else:
-        review_form = ReviewForm(instance=review)
-    context = {"review_form": review_form}
-    return render(request, "reviews/update.html", context)
+        messages.warning(request, "작성자만 수정할 수 있습니다.")
+        return redirect("reviews:detail", review.pk)
 
 
 @login_required
 def delete(request, pk):
     review = Review.objects.get(pk=pk)
-    if request.method == "POST":
-        review.delete()
-        return redirect("reviews:index")
+    if request.user == review.user:
+        if request.method == "POST":
+            review.delete()
+            return redirect("reviews:index")
+    else:
+        messages.warning(request, "작성자만 삭제할 수 있습니다.")
+        return redirect("reviews:detail", review.pk)
     return render(request, "reviews/detail.html")
 
 
@@ -65,6 +77,7 @@ def comment_create(request, pk):
     if comment_form.is_valid():
         comment = comment_form.save(commit=False)
         comment.review = review
+        comment.user = request.user
         comment.save()
     return redirect("reviews:detail", review.pk)
 

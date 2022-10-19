@@ -4,6 +4,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFill
 
+from django.conf import settings
+
 
 class Review(models.Model):
     title = models.CharField(max_length=20)
@@ -21,6 +23,9 @@ class Review(models.Model):
         format="JPEG",
         options={"quality": 80},
     )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -29,3 +34,6 @@ class Comment(models.Model):
     content = models.TextField(max_length=80)
     created_at = models.DateTimeField(auto_now_add=True)
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=1
+    )
